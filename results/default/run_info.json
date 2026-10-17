@@ -1,0 +1,112 @@
+{
+  "config": {
+    "annotation_files": {
+      "A1": "annotator_1_annotations_2026-05-19T04-05-02.317Z.csv",
+      "A2": "annotator_2_annotations_300.csv",
+      "A3": "annotator_3_annotations_300_unique.csv"
+    },
+    "data_dir": "data/raw",
+    "exclude_sources": [
+      "twitteraae_blodgett"
+    ],
+    "external_file": "AAE_Dataset_v1.0_all.csv",
+    "min_words": 1,
+    "models": {
+      "grammar_rules": {
+        "features": [
+          "grammar"
+        ],
+        "preprocess": "norm"
+      },
+      "hybrid": {
+        "features": [
+          "char",
+          "word",
+          "grammar"
+        ],
+        "preprocess": "norm"
+      },
+      "hybrid_casualneg": {
+        "casual_negatives": true,
+        "features": [
+          "char",
+          "word",
+          "grammar"
+        ],
+        "preprocess": "norm"
+      },
+      "hybrid_hardneg": {
+        "features": [
+          "char",
+          "word",
+          "grammar"
+        ],
+        "hard_negatives": true,
+        "preprocess": "norm"
+      },
+      "hybrid_no_slang": {
+        "features": [
+          "char",
+          "word",
+          "grammar"
+        ],
+        "preprocess": "norm_masked"
+      },
+      "tfidf_norm": {
+        "features": [
+          "char",
+          "word"
+        ],
+        "preprocess": "norm"
+      },
+      "tfidf_raw": {
+        "features": [
+          "char",
+          "word"
+        ],
+        "preprocess": "raw"
+      }
+    },
+    "n_repeats": 5,
+    "n_splits": 5,
+    "out_dir": "results/default",
+    "seed": 13,
+    "target_specificity": 0.95,
+    "truncation_lengths": [
+      6,
+      8,
+      10,
+      12
+    ]
+  },
+  "config_sha256": "e1873be62978922762f0ce2df3165a3750c6506813db97d4d8e276881ec36556",
+  "data_manifest": [
+    {
+      "bytes": 127799,
+      "file": "annotator_1_annotations_2026-05-19T04-05-02.317Z.csv",
+      "sha256": "47638170a1c080c30fc57e91267a0900d5e7d84e90656b9c6378e41cb408497a"
+    },
+    {
+      "bytes": 133500,
+      "file": "annotator_2_annotations_300.csv",
+      "sha256": "2692c005b4dd2f33cba58cc58b4a46d8ba5a28ff8600f4736b3374f15f28e7d2"
+    },
+    {
+      "bytes": 182463,
+      "file": "annotator_3_annotations_300_unique.csv",
+      "sha256": "96a528c2ac0d541c371b752eec1a8ac347f24f34b4eae9a7825a15bfa2e5f7ae"
+    },
+    {
+      "bytes": 7354706,
+      "file": "AAE_Dataset_v1.0_all.csv",
+      "sha256": "d6031a8005bb27194fa538fb9738d2dc12ffe9bdb326d5baef0a2bcb643b2bab"
+    }
+  ],
+  "numpy": "2.5.3",
+  "package_version": "0.1.0",
+  "pandas": "3.0.5",
+  "python": "3.13.16",
+  "pyyaml": "6.0.3",
+  "scikit_learn": "1.9.1",
+  "scipy": "1.18.1"
+}

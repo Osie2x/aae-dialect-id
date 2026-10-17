@@ -1,0 +1,42 @@
+# Main experiment. Paths are relative to the repo root; override with --data-dir.
+data_dir: data/raw
+out_dir: results/default
+seed: 13
+
+annotation_files:          # annotator id -> file. One row per tweet, with LLM SAE and back-translation.
+  A1: annotator_1_annotations_2026-05-19T04-05-02.317Z.csv
+  A2: annotator_2_annotations_300.csv
+  A3: annotator_3_annotations_300_unique.csv
+external_file: AAE_Dataset_v1.0_all.csv
+exclude_sources: [twitteraae_blodgett]   # same register as training
+
+min_words: 1
+n_splits: 5
+n_repeats: 5
+target_specificity: 0.95   # threshold = 95th percentile of held-out SAE scores
+truncation_lengths: [6, 8, 10, 12]
+
+models:
+  grammar_rules:           # interpretable baseline, no word features
+    features: [grammar]
+    preprocess: norm
+  tfidf_raw:               # the original pilot (v2), now with class weights
+    features: [char, word]
+    preprocess: raw
+  tfidf_norm:              # + platform-artifact normalization
+    features: [char, word]
+    preprocess: norm
+  hybrid:                  # + grammar-rule features
+    features: [char, word, grammar]
+    preprocess: norm
+  hybrid_no_slang:         # slang and profanity removed at train AND test time
+    features: [char, word, grammar]
+    preprocess: norm_masked
+  hybrid_casualneg:        # + casual rewrites of the SAE translations as negatives (informality control)
+    features: [char, word, grammar]
+    preprocess: norm
+    casual_negatives: true
+  hybrid_hardneg:          # + native-rejected tweets and performed back-translations as negatives
+    features: [char, word, grammar]
+    preprocess: norm
+    hard_negatives: true

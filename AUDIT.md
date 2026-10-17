@@ -1,0 +1,20 @@
+# Audit of the pilot scripts (v1–v3)
+
+The pilots (`legacy/aae_classifier_pilot.py`, `_v2.py`, `aae_classifier_alignment_v3.py`) produced the first
+numbers. This file lists what was wrong or hidden in them and where each fix lives in `src/aaeid`.
+
+| # | Problem in the pilots | Effect | Fix |
+|---|---|---|---|
+| 1 | **80% of the "human-reviewed" external AAE was labeled by a model.** In `AAE_Dataset_v1.0_all.csv`, 819 of 1,018 `dialect_label == "AAE"` rows have `prediction_basis = codebook_based_model_prediction` (`review_claim_without_row_decision`). Only 172 rows are a person's "accept". | Cross-register numbers mixed human and model labels. The model labeler also picked lines rich in grammar features (any rule fires on 46% of model-labeled rows vs 34% of human-accepted), so grammar results on those rows were circular. "Natural conversation" has only 5 human-accepted rows. | `data.load_external` splits rows into `human` (primary) and `model` (secondary, reported separately). |
+| 2 | **The negatives teach "formal vs informal".** Negatives were Gemini SAE translations: capitalized, punctuated, "you" not "u". | The pilot model calls 47% of the same translations AAE once they are written casually. In-domain AUC falls from 0.97 to 0.80. The 89–91% headline was mostly a style detector. | `casualize()` builds casual SAE. It's used as a test (`auc_aae_vs_casual_sae`) and as extra training negatives (`hybrid_casualneg`). |
+| 3 | **26 pairs where the "translation" is the tweet itself.** | The same string was a positive and a negative. | Removed in `load_annotations` and counted in the log. |
+| 4 | **Slang masked at test time only.** v1/v2 trained on full text, then deleted words from test lines. | The "slang removed" drop mixed reliance on slang with damage from deleted words the model never saw missing. | `hybrid_no_slang` masks at train and test time. |
+| 5 | **Plain accuracy on unbalanced classes**, threshold fixed at 0.5. | Not comparable across models or variants: `class_weight` in v3 moved the 0.5 point. | AUC, balanced accuracy, and one operating point per model: the threshold that keeps 95% of held-out SAE below it (`pick_threshold`, which handles tied scores). |
+| 6 | **No uncertainty.** | Differences such as 29% vs 43% on 14 movie lines looked real. | Wilson intervals for proportions, bootstrap intervals for AUC, 5×5 repeated CV. |
+| 7 | **Grammar regexes had false positives**: "I told you so", "give you my number", "they bring", "are you done yet", "don't know, no". They also missed "lol he so funny". | The grammar baseline was noisy in both directions. | Clause-start anchor, exclusion lists, and 40+ positive/negative unit tests (`tests/test_grammar.py`). |
+| 8 | **Grammar rules rarely fire on Twitter AAE** (11% of natural tweets have any rule). | "Grammar-based" results describe a small, feature-rich slice of AAE, not AAE in general. | Coverage table in every report. |
+| 9 | **Length was untested** as the reason TV and movie lines (6 words) score low. | Register and length were confounded. | In-domain tweets cut to 6/8/10/12 words. Recall barely changes, so length is not the reason. |
+| 10 | **Annotators labeled different tweets and use different thresholds** (A1 rejects 7% of tweets, A2 18%, A3 19%; A1 calls 298/300 back-translations natural). | Variant C's "performed" negatives came almost entirely from A2 and A3. | Folds stratified by annotator × label, per-annotator AUC, leave-one-annotator-out. |
+| 11 | Dead code in v3: `sae_fp = (oof_a*0).mean()` is always 0 and unused. | None, but confusing. | Removed. |
+| 12 | Upload-hash file names hard-coded, no seeds beyond `KFold`, nothing saved, no versions recorded. | Not reproducible. | Config file, fixed seed, saved folds and scores, input hashes and package versions in `run_info.json`, deterministic test. |
+| 13 | **Annotator personal data** (identity, region, name, consent) was loaded with the labels. | Risk of leaking it into outputs. | Dropped on load. A test checks that no text or PII reaches any output file. |

@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it as below."
+title: "aaeid: where AAE detectors break"
+version: 0.1.0
+authors:
+  - family-names: Igbinoba
+    given-names: Osaretin
+license: MIT
