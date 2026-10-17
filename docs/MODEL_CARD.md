@@ -14,9 +14,9 @@ baseline judge in evaluation studies, and to sample candidate lines for **human*
 
 **Training data.** 720 TwitterAAE tweets rated natural AAE by native-speaker annotators (positives). Gemini SAE
 translations of 874 tweets (negatives). Optionally casual rewrites of those translations, tweets natives
-rejected, and back-translations natives rated performed. See DATA.md.
+rejected, and back-translations natives rated performed. See [the data guide](DATA.md).
 
-**Evaluation.** See README "Main findings" and `results/default/report.md`. In short, it works in-domain
+**Evaluation.** See the [project findings](../README.md#findings-from-the-saved-run) and [full report](../results/default/report.md). In short, it works in-domain
 (AUC about 0.92 against formal and casual SAE). Recall drops on spoken and scripted AAE. It barely separates
 real from performed AAE (AUC about 0.6).
 

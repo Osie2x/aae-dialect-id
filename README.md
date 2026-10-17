@@ -1,13 +1,24 @@
-# aaeid: where AAE detectors break
+# AAE Dialect Identification
+
+[![Tests](https://github.com/Osie2x/aae-dialect-id/actions/workflows/tests.yml/badge.svg)](https://github.com/Osie2x/aae-dialect-id/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Baselines and an evaluation harness for **African American English (AAE) identification in text**.
-They show what a Twitter-trained detector actually learns and where it stops working.
+This research project studies how Twitter-trained baselines behave across registers, informal writing, and native-speaker judgments.
+
+## Start here
+
+- **Read the findings:** [Full results report](results/default/report.md) and [saved output guide](results/README.md).
+- **Understand the scope:** [Model card](docs/MODEL_CARD.md).
+- **Reproduce the analysis:** [Data requirements and provenance](docs/DATA.md), then the setup below.
+- **Review the methodology:** [Pilot audit](docs/AUDIT.md) and [experiment configuration](configs/default.yaml).
+- **Work on the code:** [Contribution guide](CONTRIBUTING.md).
 
 > **Scope of the claim.** These models detect *written online AAE as it appears in this Twitter sample*,
 > against *LLM-written Standard American English*. They are not general AAE detectors, and nothing here
-> should be used to infer anyone's race or to filter people's speech. See [MODEL_CARD.md](MODEL_CARD.md).
+> should be used to infer anyone's race or to filter people's speech. See [model card](docs/MODEL_CARD.md).
 
-## Main findings (results/default/report.md)
+## Findings from the saved run
 
 | Finding | Evidence |
 |---|---|
@@ -19,17 +30,21 @@ They show what a Twitter-trained detector actually learns and where it stops wor
 | Most "AAE" labels outside Twitter came from a model | 819 of 1,018 rows. Those rows fire grammar rules more often (46% vs 34%), so the labeler selected feature-rich lines. They are reported separately and never mixed with human labels. |
 
 Every number has a 95% interval in the report. Several external slices are tiny (5 natural-conversation lines,
-11 TV lines), so treat them as pilot evidence. [AUDIT.md](AUDIT.md) lists the 13 problems found in the
+11 TV lines), so treat them as pilot evidence. [pilot audit](docs/AUDIT.md) lists the 13 problems found in the
 original pilot scripts and how each was fixed.
 
-## Quick start
+## Setup and reproduction
+
+Run these commands from the repository root. Python 3.10 or later is required; CI uses Python 3.12. The saved dependency versions are in `requirements.txt`. Raw research data is not included, so tests can run without it but reproducing the saved analysis requires the inputs described in [the data guide](docs/DATA.md).
 
 ```bash
-git clone <this repo> && cd aae-dialect-id
-python -m venv .venv && source .venv/bin/activate
+git clone https://github.com/Osie2x/aae-dialect-id.git
+cd aae-dialect-id
+python -m venv .venv
+source .venv/bin/activate
 make install        # pinned versions from requirements.txt
-make test           # 30 tests on synthetic data, no real data needed
-# put the data files in data/raw/ (see DATA.md), then:
+make test           # synthetic tests; no real data needed
+# put the data files in data/raw/ (see docs/DATA.md), then:
 make run            # writes results/default/  (~4 min on a laptop CPU)
 make verify         # reruns and checks the results are byte-identical
 ```
@@ -58,16 +73,24 @@ For each model the harness reports:
 
 ## Repository layout
 
-```
-configs/default.yaml   every setting that affects results
-src/aaeid/             text.py, grammar.py, data.py, models.py, experiments.py, stats.py, run.py, report.py
-tests/                 unit tests, grammar-rule tests, end-to-end determinism and no-text-leak test
-results/default/       report.md, results.json, run_info.json (input hashes and versions), folds.csv
-legacy/                the original pilot scripts, kept for comparison
-AUDIT.md  DATA.md  MODEL_CARD.md
+```text
+aae-dialect-id/
+├── README.md                 Project overview and setup
+├── CONTRIBUTING.md           Development and review guidance
+├── CITATION.cff              Citation metadata
+├── LICENSE                   Code license
+├── docs/                     Data guide, model card, and pilot audit
+├── configs/default.yaml      Experiment settings
+├── src/aaeid/                Reusable evaluation package
+├── tests/                    Synthetic fixtures and automated checks
+├── data/raw/                 Local input data (ignored by Git)
+├── results/                  Saved report, metrics, folds, and provenance
+└── legacy/                   Historical pilot scripts
 ```
 
 ## Reproducibility
+
+The tables above summarize the supplied saved run. Publishing or organizing this repository does not independently reproduce those results. Use `make verify` with the original inputs to compare a fresh run with the saved metrics and folds.
 
 - **Fixed seeds and deterministic solvers.** Same config and data give byte-identical `results.json`. A test and `make verify` check this.
 - **Input provenance.** `run_info.json` records SHA-256 hashes of every input file, the config hash, and Python and library versions.
